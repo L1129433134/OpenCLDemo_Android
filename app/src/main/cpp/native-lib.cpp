@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <OpenCLWrapper.h>
 #include <cstdlib>
+#include <sstream>
 
 
 
@@ -247,14 +248,17 @@
 //}
 
 
-int test_openc_demo()
+std::string test_openc_demo()
 {
+    std::stringstream ret_inf;
     MNN::OpenCLSymbolsOperator::createOpenCLSymbolsOperatorSingleInstance();
     if (nullptr ==  MNN::OpenCLSymbolsOperator::getOpenclSymbolsPtr()) {
         LOGD("OpenCL init error , callback ...");
+        ret_inf << "OpenCL init error , callback ...";
         return 0;
     } else
     {
+        ret_inf << "OpenCL init ok \n";
         LOGD("OpenCL init ok");
     }
 
@@ -279,6 +283,8 @@ int test_openc_demo()
     {
         clGetPlatformInfo(listPlatform[i], CL_PLATFORM_NAME, 1024, info, NULL);
         LOGD("Platfom[%d]:\n\tName\t\t%s", i, info);
+        ret_inf  << info;
+
         clGetPlatformInfo(listPlatform[i], CL_PLATFORM_VERSION, 1024, info, NULL);
         LOGD("\n\tVersion\t\t%s", info);
         //clGetPlatformInfo(listPlatform[i], CL_PLATFORM_VENDOR, 1024, info, NULL);
@@ -287,6 +293,7 @@ int test_openc_demo()
         //printf("\n\tProfile\t\t%s", info);
         clGetPlatformInfo(listPlatform[i], CL_PLATFORM_EXTENSIONS, 1024, info, NULL);
         LOGD("\n\tExtension\t%s", info);
+        ret_inf  << info;
 
         clGetDeviceIDs(listPlatform[i], CL_DEVICE_TYPE_ALL, 0, NULL, &nDevice);
         listDevice = (cl_device_id*)malloc(nDevice * sizeof(cl_device_id));
@@ -297,8 +304,10 @@ int test_openc_demo()
             LOGD("\n");
             clGetDeviceInfo(listDevice[j], CL_DEVICE_NAME, 1024, info, NULL);
             LOGD("\n\tDevice[%d]:\n\tName\t\t%s", j, info);
+            ret_inf  << info;
             clGetDeviceInfo(listDevice[j], CL_DEVICE_VERSION, 1024, info, NULL);
             LOGD("\n\tVersion\t\t%s", info);
+            ret_inf  << info;
             clGetDeviceInfo(listDevice[j], CL_DEVICE_TYPE, 1024, info, NULL);
 //            switch (info[0])
 //            {
@@ -310,6 +319,7 @@ int test_openc_demo()
 //                case CL_DEVICE_TYPE_ALL:strcpy_s(info, "ALL"); break;
 //            }
             LOGD("\n\tType\t\t%s", info);
+            ret_inf  << info;
 
             cl_device_svm_capabilities svm;
             clGetDeviceInfo(listDevice[j], CL_DEVICE_VERSION, sizeof(cl_device_svm_capabilities), &svm, NULL);
@@ -323,13 +333,18 @@ int test_openc_demo()
 //            if (svm & CL_DEVICE_SVM_ATOMICS)
 //                strcat_s(info, "ATOMICS");
             LOGD("\n\tSVM\t\t%s", info);
+            ret_inf  << info;
         }
         printf("\n\n");
         free(listDevice);
     }
+
+
     free(listPlatform);
     getchar();
-    return 0;
+
+    return ret_inf.str();
+//    return 0;
 
 
 
@@ -339,9 +354,8 @@ extern "C" JNIEXPORT jstring JNICALL
 Java_com_ai_momocv_opencldemo_MainActivity_stringFromJNI(
         JNIEnv *env,
         jobject /* this */) {
-    std::string hello = "Hello from C++";
+    std::string hello = test_openc_demo();
 
-    test_openc_demo();
     //test();
     return env->NewStringUTF(hello.c_str());
 }
