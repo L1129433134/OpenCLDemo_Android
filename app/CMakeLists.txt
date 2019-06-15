@@ -5,6 +5,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+project(echo LANGUAGES C CXX)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -12,15 +14,16 @@ cmake_minimum_required(VERSION 3.4.1)
 include_directories(    ${CMAKE_CURRENT_LIST_DIR}/src/main/cpp/include/opencl
                         ${CMAKE_CURRENT_LIST_DIR}/src/main/cpp/include/opencl/include
                         ${CMAKE_CURRENT_LIST_DIR}/src/main/cpp/include/opencl/include/CL
+                        ${CMAKE_CURRENT_LIST_DIR}/src/main/cpp
                         ${CMAKE_CURRENT_LIST_DIR}/src/main/cpp/include/opencl/opencl22)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(libs "${CMAKE_SOURCE_DIR}/src/main/jniLibs")
 #--------------------------------------------------- import ---------------------------------------------------#
-add_library(libOpenCL SHARED IMPORTED )
-set_target_properties(libOpenCL PROPERTIES
-        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libOpenCL.so")
-message(ANDROID_ABwwwwwwwwwwwwI ,${ANDROID_ABI})
+#add_library(libOpenCL SHARED IMPORTED )
+#set_target_properties(libOpenCL PROPERTIES
+#        IMPORTED_LOCATION "${libs}/${ANDROID_ABI}/libOpenCL.so")
+#message(ANDROID_ABwwwwwwwwwwwwI ,${ANDROID_ABI})
 
 
 
@@ -47,7 +50,9 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        src/main/cpp/native-lib.cpp)
+        src/main/cpp/native-lib.cpp
+        src/main/cpp/OpenCLWrapper.h
+        src/main/cpp/OpenCLWrapper.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -70,7 +75,6 @@ find_library( # Sets the name of the path variable.
 if(ANDROID_ABI MATCHES "^armeabi(-v7a)?$")
     target_link_libraries( # Specifies the target library.
             native-lib
-            libOpenCL
             ${log-lib})
 elseif(ANDROID_ABI STREQUAL arm64-v8a)
     target_link_libraries( # Specifies the target library.
